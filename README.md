@@ -12,7 +12,69 @@
 ### Step-10: Sort movies based on score calculated above.
 ### Step-11: Print the top 10 movies.
 ### Step-12: as per the popularity,budget,revenue we are getting these movies as the highest viewing rate.
+## Source Code:
+```
+import numpy as np
+import pandas as pd
+df1 = pd.read_csv('credits.csv')
+df1.head()
+df1.shape
+df1.info()
+df2 = pd.read_csv('movies.csv')
+df2.head()
+df2.shape
+df2.info()
+df1.columns = ['id','title','cast','crew']
+df2= df2.merge(df1,on='id')
+df2.head()
+df2.shape
+df2.columns
+mean= df2['vote_average'].mean()
+mean
+mov_grt= df2['vote_count'].quantile(0.8) #movies having vote count greater than 80% from the list will be taken
+mov_grt
+lists_movies = df2.copy().loc[df2['vote_count'] >= mov_grt]
+lists_movies.shape
+def weighted_rating(x, mov_grt=mov_grt, mean=mean):
+    v = x['vote_count']
+    R = x['vote_average']
+    return (v/(v+mov_grt) * R) + (mov_grt/(mov_grt+v) * mean) 
+ 
+lists_movies['score'] = lists_movies.apply(weighted_rating, axis=1)
+lists_movies.head(3)
+lists_movies.shape
+lists_movies = lists_movies.sort_values('score', ascending=False)
+lists_movies[['title_x', 'vote_count', 'vote_average', 'score']].head(10)
+pop= df2.sort_values('popularity', ascending=False)
+import matplotlib.pyplot as plt
+plt.figure(figsize=(12,4))
 
+plt.barh(pop['title_x'].head(6),pop['popularity'].head(6), align='center',
+        color='m')
+plt.gca().invert_yaxis()
+plt.xlabel("Popularity")
+plt.title("Popular Movies" )
+df2.columns
+pop= df2.sort_values('budget', ascending=False)
+import matplotlib.pyplot as plt
+plt.figure(figsize=(12,4))
+
+plt.barh(pop['title_x'].head(6),pop['budget'].head(6), align='center',
+        color='lightgreen')
+plt.gca().invert_yaxis()
+plt.xlabel("Popularity")
+plt.title("High Budget Movies" )
+pop= df2.sort_values('revenue', ascending=False)
+import matplotlib.pyplot as plt
+plt.figure(figsize=(12,4))
+
+plt.barh(pop['title_x'].head(6),pop['revenue'].head(6), align='center',
+        color='lightblue')
+plt.gca().invert_yaxis()
+plt.xlabel("Popularity")
+plt.title("Revenue on Movies" )
+
+```
 ## Output:
 ![image](https://user-images.githubusercontent.com/75235293/232290063-b11344fb-0851-4115-9160-0d4751a8aca1.png)
 ![image](https://user-images.githubusercontent.com/75235293/232290092-30f796c2-4b40-4370-9c20-74e2d7c767f2.png)
